@@ -1,5 +1,22 @@
 import fs from "node:fs/promises";
 import express from "express";
+import cors from "cors";
+import {
+  CanvasClient,
+  isAllowedReferrer,
+  EMPTY_COMPOSITION,
+  IN_CONTEXT_EDITOR_CONFIG_CHECK_QUERY_STRING_PARAM,
+} from "@uniformdev/canvas";
+
+// This is using a stock Hello World project, you can change it to yours
+// TODO: Move these to env vars — they are read-only :)
+const UNIFORM_PROJECT_ID = "81bd0790-df64-485a-8aa3-7fc978d9b058";
+const UNIFORM_API_KEY =
+  "uf1rzhtef4ycj3c0asg97p2sekjzde6yq9v4nx2u69vl66rz9l89ta63z64efl8anzdrterc72zcm9ra9zwzaew88d8l7pnwn";
+
+// For now, we will use the same path we use to render composition.
+// But it's recommended to have a dedicated route for the playground and use <UniformPlayground />
+const PLAYGROUND_PATH = "/";
 
 // Constants
 const isProduction = process.env.NODE_ENV === "production";
@@ -7,17 +24,19 @@ const port = process.env.PORT || 5173;
 const base = process.env.BASE || "/";
 
 // Cached production assets
-const templateHtml = isProduction
-  ? await fs.readFile("./dist/client/index.html", "utf-8")
-  : "";
+const templateHtml = isProduction ? await fs.readFile("./dist/client/index.html", "utf-8") : "";
 const ssrManifest = isProduction
   ? await fs.readFile("./dist/client/.vite/ssr-manifest.json", "utf-8")
   : undefined;
 
 // Create http server
 const app = express();
+app.use(cors());
 
 // Add Vite or respective production middlewares
+/**
+ * @type {import('vite').ViteDevServer}
+ */
 let vite;
 if (!isProduction) {
   const { createServer } = await import("vite");
@@ -50,7 +69,36 @@ app.use("*", async (req, res) => {
       render = (await import("./dist/server/entry-server.js")).render;
     }
 
-    const rendered = await render(url, ssrManifest);
+    const isConfigCheck = req.query[IN_CONTEXT_EDITOR_CONFIG_CHECK_QUERY_STRING_PARAM] === "true";
+    if (isConfigCheck) {
+      res.json({
+        hasPlayground: Boolean(PLAYGROUND_PATH),
+      });
+      return;
+    }
+
+    const path = req.params[0];
+    let composition;
+
+    if (req.params[0] === "/api/preview" && isAllowedReferrer(req.headers.referer)) {
+      // In preview mode, there is no need to spent time fetching the composition
+      // we will get it from Canvas editor on the client-side. We just use a stub composition
+      composition = EMPTY_COMPOSITION;
+      // TODO: check if the preview secret is correct before moving forward
+    } else {
+      const canvasClient = new CanvasClient({
+        projectId: UNIFORM_PROJECT_ID,
+        apiKey: UNIFORM_API_KEY,
+      });
+
+      const response = await canvasClient.getCompositionByNodePath({
+        projectMapNodePath: path,
+      });
+
+      composition = response.composition;
+    }
+
+    const rendered = await render({ composition });
 
     const html = template
       .replace(`<!--app-head-->`, rendered.head ?? "")

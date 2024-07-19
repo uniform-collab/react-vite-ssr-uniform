@@ -1,12 +1,11 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import App from "./App";
-import homeComposition from "../content/homeComposition.json";
 
-export function render() {
+export async function render({ composition }) {
   const html = ReactDOMServer.renderToString(
     <React.StrictMode>
-      <App composition={homeComposition} />
+      <App composition={composition} />
     </React.StrictMode>
   );
   return { html };
