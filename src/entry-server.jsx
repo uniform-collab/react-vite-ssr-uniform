@@ -2,10 +2,10 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import App from "./App";
 
-export function render() {
+export async function render({ composition }) {
   const html = ReactDOMServer.renderToString(
     <React.StrictMode>
-      <App />
+      <App composition={composition} />
     </React.StrictMode>
   );
   return { html };
