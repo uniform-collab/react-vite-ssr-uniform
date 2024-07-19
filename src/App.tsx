@@ -1,5 +1,5 @@
 import { RootComponentInstance } from "@uniformdev/canvas";
-import { UniformComposition, UniformSlot } from "@uniformdev/canvas-react";
+import { UniformComposition } from "@uniformdev/canvas-react";
 import { Context } from "@uniformdev/context";
 import { UniformContext } from "@uniformdev/context-react";
 import { manifest } from "./uniform/manifest";

@@ -2,17 +2,11 @@ import fs from "node:fs/promises";
 import express from "express";
 import cors from "cors";
 import {
-  CanvasClient,
   isAllowedReferrer,
   EMPTY_COMPOSITION,
   IN_CONTEXT_EDITOR_CONFIG_CHECK_QUERY_STRING_PARAM,
 } from "@uniformdev/canvas";
-
-// This is using a stock Hello World project, you can change it to yours
-// TODO: Move these to env vars — they are read-only :)
-const UNIFORM_PROJECT_ID = "81bd0790-df64-485a-8aa3-7fc978d9b058";
-const UNIFORM_API_KEY =
-  "uf1rzhtef4ycj3c0asg97p2sekjzde6yq9v4nx2u69vl66rz9l89ta63z64efl8anzdrterc72zcm9ra9zwzaew88d8l7pnwn";
+import { getComposition } from "./src/uniform/api.js";
 
 // For now, we will use the same path we use to render composition.
 // But it's recommended to have a dedicated route for the playground and use <UniformPlayground />
@@ -25,9 +19,6 @@ const base = process.env.BASE || "/";
 
 // Cached production assets
 const templateHtml = isProduction ? await fs.readFile("./dist/client/index.html", "utf-8") : "";
-const ssrManifest = isProduction
-  ? await fs.readFile("./dist/client/.vite/ssr-manifest.json", "utf-8")
-  : undefined;
 
 // Create http server
 const app = express();
@@ -86,16 +77,7 @@ app.use("*", async (req, res) => {
       composition = EMPTY_COMPOSITION;
       // TODO: check if the preview secret is correct before moving forward
     } else {
-      const canvasClient = new CanvasClient({
-        projectId: UNIFORM_PROJECT_ID,
-        apiKey: UNIFORM_API_KEY,
-      });
-
-      const response = await canvasClient.getCompositionByNodePath({
-        projectMapNodePath: path,
-      });
-
-      composition = response.composition;
+      composition = await getComposition(path);
     }
 
     const rendered = await render({ composition });
