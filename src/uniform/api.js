@@ -1,12 +1,12 @@
 import { CanvasClient } from "@uniformdev/canvas";
-// import homeComposition from "../../content/homeComposition.json" assert { type: "json" };
+import homeComposition from "../../content/homeComposition.json" assert { type: "json" };
 
 export async function getComposition() {
   // returning a static composition from json
-  //return homeComposition;
+  return homeComposition;
 
   // TODO: use this to fetch composition live
-  return await getLiveComposition();
+  // return await getLiveComposition();
 }
 
 export async function getLiveComposition(path) {
