@@ -1,18 +1,19 @@
-import { ComponentProps, UniformText } from "@uniformdev/canvas-react";
+import { ComponentProps, UniformRichText, UniformText } from "@uniformdev/canvas-react";
 
 type HeroProps = ComponentProps<{
   title: string;
   description?: string;
 }>;
 
-const Hero: React.FC<HeroProps> = ({ title, description }) => (
-  <div>
-    <h1 className="title">{title}</h1>
-    <div className="description">{description}</div>
-  </div>
-);
+// This component is not using helpers for in-line editing
+// const HeroPure: React.FC<HeroProps> = ({ title, description }) => (
+//   <div>
+//     <h1 className="title">{title}</h1>
+//     <div className="description">{description}</div>
+//   </div>
+// );
 
-const HeroWithInlineEditing: React.FC<HeroProps> = () => (
+const Hero: React.FC<HeroProps> = () => (
   <div>
     <UniformText
       className="title"
@@ -21,7 +22,7 @@ const HeroWithInlineEditing: React.FC<HeroProps> = () => (
       data-test-id="hero-title"
       placeholder="Hero title goes here"
     />
-    <UniformText parameterId="description" className="description" data-test-id="hero-description" />
+    <UniformRichText parameterId="description" className="description" data-test-id="hero-description" />
   </div>
 );
 

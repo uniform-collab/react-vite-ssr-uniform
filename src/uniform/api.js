@@ -1,25 +1,19 @@
-import { CanvasClient } from "@uniformdev/canvas";
-import homeComposition from "../../content/homeComposition.json" assert { type: "json" };
+import { RouteClient } from "@uniformdev/canvas";
 
-export async function getComposition() {
-  // returning a static composition from json
-  return homeComposition;
-
-  // TODO: use this to fetch composition live
-  // return await getLiveComposition();
-}
-
-export async function getLiveComposition(path) {
-  // TODO: move into env vars
-  const canvasClient = new CanvasClient({
-    projectId: "89e2e3e8-aaa7-4b89-9800-6334909c27e1",
+export async function getComposition(path) {
+  const client = new RouteClient({
+    projectId: "99495eba-c588-4672-89d9-715cca3539f3",
     apiKey:
-      "uf1afmk5r7tn5d0f3pxx09ur4cgh3rafejs4h737ygkyk8sgla9jvcncxeg6m040f6gwx2xtztj6xquvg7nde5axuzvehew30",
+      "uf18jlavcqyh9y0s7x2zz4q6cg7xvvx8e5n40zyfl6vw76ldqkgywszwnjpze7yzw4upvnknep6fse6nx03l2kr6a72tnr4wy",
   });
 
-  const response = await canvasClient.getCompositionByNodePath({
-    projectMapNodePath: path ?? "/",
+  const response = await client.getRoute({
+    path: path ?? "/",
   });
 
-  return response.composition;
+  if (response.type === "composition") {
+    return response.compositionApiResponse.composition;
+  }
+
+  return null;
 }

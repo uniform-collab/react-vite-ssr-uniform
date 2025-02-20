@@ -6,6 +6,7 @@ import {
   EMPTY_COMPOSITION,
   IN_CONTEXT_EDITOR_CONFIG_CHECK_QUERY_STRING_PARAM,
 } from "@uniformdev/canvas";
+
 import { getComposition } from "./src/uniform/api.js";
 
 // For now, we will use the same path we use to render composition.
